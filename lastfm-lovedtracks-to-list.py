@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup # for scrapping
 import requests # for scrapping
-import sys # for passing arguments from the console
+import sys
+
+from downloader import bcolors # for passing arguments from the console
 
 def generate_list_from_lasftfm_lovedtracks(username):
     print(f"Starting to generate a list with all {username}'s loved tracks...")
@@ -11,12 +13,15 @@ def generate_list_from_lasftfm_lovedtracks(username):
     page = requests.get(main_url)
     soup = BeautifulSoup(page.content, 'html.parser')
 
+    if (soup == None):
+        return
+    
     element = soup.find("ul", attrs={'class': "pagination-list"})
     if element == None:
         # it only has 1 page of loved tracks!
         pass
     else:
-        element = element.findAll("li")        
+        element = element.find_all("li")        
         for li in element:
             try: #there are a bunch of non number ones
                 navbutton_pagenumber = int(li.text)
@@ -36,10 +41,14 @@ def generate_list_from_lasftfm_lovedtracks(username):
         soup = BeautifulSoup(page.content, 'html.parser')
         soup = soup.find("tbody", attrs={'data-playlisting-add-entries': ""})
 
-        # TODO: There are a lot of tracks that don't have a youtube link! 
-        # tracks = soup.findAll("a", attrs={'data-youtube-url': True})
+        if (soup == None):
+            print(f"{bcolors.WARNING} Couldn't find page number !")
+            return
 
-        tracks = soup.findAll("tr", attrs={'class': "chartlist-row"})
+        # TODO: There are a lot of tracks that don't have a youtube link! 
+        # tracks = soup.find_all("a", attrs={'data-youtube-url': True})
+
+        tracks = soup.find_all("tr", attrs={'class': "chartlist-row"})
 
         for track in tracks:
             

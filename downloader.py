@@ -248,18 +248,24 @@ def download_songs_in_list(user_list):
                     if not exists(filefullpath) and exists(m4afilefullpath):
                         filefullpath = m4afilefullpath
 
-                    metatag = EasyID3(filefullpath)
+                    if os.path.isfile(filefullpath):
+                        metatag = EasyID3(filefullpath)
+                        metatag['title'] = t_title
+                        metatag['artist'] = t_artist
+                        metatag.save()
 
                 except mutagen.id3.ID3NoHeaderError:
                     metatag = mutagen.File(filefullpath, easy=True)
                     if len(metatag) == 0: 
                         metatag.add_tags()
+                        metatag['title'] = t_title
+                        metatag['artist'] = t_artist
+                        metatag.save()
+
                 except Exception as e:
                     print(bcolors.FAIL + str(e) + bcolors.ENDC )
                     print(bcolors.FAIL + f"Unknow error while writing metadata on {filename}"  + bcolors.ENDC)
-                metatag['title'] = t_title
-                metatag['artist'] = t_artist
-                metatag.save()
+
             else:
                 if not captcha_was_alerted and captcha_is_already_triggered:
                     failed_tracks.append(bcolors.WARNING + f"!!! WARNING: CAPTCHA WAS PROBABLY TRIGGERED FROM HERE :( !!!" + bcolors.ENDC )
