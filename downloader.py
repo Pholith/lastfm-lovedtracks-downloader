@@ -137,12 +137,13 @@ def download_songs_in_list(user_list):
     unfondsfile_name = "UNFOUNDS.txt"
     if isinstance(user_list, str):
         unfondsfile_name = f"{user_list[0:-4]}_UNFOUNDS.txt"
-        #so it's expected a filename to a txt file
-        with open(user_list, "r", encoding="utf-8") as f:
-            temp_tracks = f.read().split("\n")
-            for t in temp_tracks:
-                if "||" in t and t not in ["", None]:
-                    list_of_tracks_to_download.append(t.split(" || "))
+        if os.path.isfile(user_list):
+            #so it's expected a filename to a txt file
+            with open(user_list, "r", encoding="utf-8") as f:
+                temp_tracks = f.read().split("\n")
+                for t in temp_tracks:
+                    if "||" in t and t not in ["", None]:
+                        list_of_tracks_to_download.append(t.split(" || "))
     else:
         list_of_tracks_to_download = user_list
 
@@ -176,9 +177,9 @@ def download_songs_in_list(user_list):
             clean_artist = re.sub(r'[\\~#%&*{}/:<>?|\"-]+', "'", t_artist)
             clean_title = re.sub(r'[\\~#%&*{}/:<>?|\"-]+', "'", t_title)
             filename = f"{clean_artist} - {clean_title}"
-            fileLocalPath = f".{os.path.altsep}{clean_artist}{os.path.altsep}{filename}.mp3"
-            filefullpath = f"{PATH_DOWNLOADS}{clean_artist}{os.path.altsep}{filename}.mp3"
-            m4afilefullpath = f"{PATH_DOWNLOADS}{clean_artist}{os.path.altsep}{filename}.m4a"
+            fileLocalPath = os.path.join("",".",f"{clean_artist}", f"{filename}.mp3")
+            filefullpath = os.path.join(f"{PATH_DOWNLOADS}{clean_artist}", f"{filename}.mp3")
+            m4afilefullpath = os.path.join(f"{PATH_DOWNLOADS}{clean_artist}", f"{filename}.m4a")
             skip = False
             for file in files_to_not_dl_again:
                 if file.__contains__(filename):
