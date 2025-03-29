@@ -49,6 +49,7 @@ def download_from_youtube(url, filename):
             'quiet': True,
             'format': 'bestaudio/best',
             'noplaylist':True,
+            'cookiesfrombrowser': ["firefox"],
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -60,8 +61,8 @@ def download_from_youtube(url, filename):
             ydl.download(url, )
 
         return True
-    except:
-        print(bcolors.FAIL + f"FAIL: YOUTUBE VIDEO UNAVAILABLE: {url}"+ bcolors.ENDC)
+    except Exception as e:
+        print(bcolors.FAIL + f"FAIL: YOUTUBE VIDEO UNAVAILABLE: {url}\n{e}"+ bcolors.ENDC)
         return False
 
 def google_search(site, artist_name, song_name):
