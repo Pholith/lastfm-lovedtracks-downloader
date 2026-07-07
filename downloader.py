@@ -49,12 +49,24 @@ def download_from_youtube(url, filename):
             'quiet': True,
             'format': 'bestaudio/best',
             'noplaylist':True,
+            # 'verbose': True,
             'cookiesfrombrowser': ["firefox"],
+            'remotecom'
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
+                'preferredquality': '192',  # You can change to 320 for higher quality
+            },
+            {  # Embed thumbnail as album art (cover image)
+                'key': 'EmbedThumbnail',
+            },
+            {  # Add metadata (title, uploader, etc.)
+                'key': 'FFmpegMetadata',
+            }
+            ],
+            'writethumbnail': True, # Download thumbnail temporarily
+            'embedthumbnail': True,
+            'addmetadata': True,
             'outtmpl': f'{PATH_DOWNLOADS}{str.rstrip(filename,".mp3")}.%(ext)s',
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -86,12 +98,12 @@ def google_search(site, artist_name, song_name):
     #outputFile.write(page.text)
     #outputFile.flush()
 
-    if (len(soup.findAll('form', id='captcha-form')) > 0):
+    if (len(soup.find_all('form', id='captcha-form')) > 0):
         # damn, google aready trow us the captcha
         print(bcolors.WARNING + "!!!! WARNING: GOOGLE IS POLICING WITH THE CAPTCHA :( !!!!" + bcolors.ENDC)
         captcha_triggered = True
     else:
-        google_links = soup.findAll('div', id="search") # class r doesnt work anymore
+        google_links = soup.find_all('div', id="search") # class r doesnt work anymore
         
         for div in google_links:
             divh3 = div.find("h3")
@@ -240,15 +252,13 @@ def download_songs_in_list(user_list):
                                     # already found the script with the data, so break out of the loop
                                 break
 
-
             # TAG
             if download_was_successful :
                 #add metatags to the downloaded mp3
-                try:
 
+                try:
                     if not exists(filefullpath) and exists(m4afilefullpath):
                         filefullpath = m4afilefullpath
-
                     if os.path.isfile(filefullpath):
                         metatag = EasyID3(filefullpath)
                         metatag['title'] = t_title
@@ -256,13 +266,13 @@ def download_songs_in_list(user_list):
                         metatag.save()
 
                 except mutagen.id3.ID3NoHeaderError:
-                    metatag = mutagen.File(filefullpath, easy=True)
+                    
+                    metatag = mutagen.File(filefullpath) # Removed EasyMp3 since it doesn't handle already tagged files well.
                     if len(metatag) == 0: 
                         metatag.add_tags()
                         metatag['title'] = t_title
                         metatag['artist'] = t_artist
                         metatag.save()
-
                 except Exception as e:
                     print(bcolors.FAIL + str(e) + bcolors.ENDC )
                     print(bcolors.FAIL + f"Unknow error while writing metadata on {filename}"  + bcolors.ENDC)

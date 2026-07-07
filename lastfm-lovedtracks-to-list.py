@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup # for scrapping
 import requests # for scrapping
 import sys
-
+import time 
 from downloader import bcolors # for passing arguments from the console
 
 def generate_list_from_lasftfm_lovedtracks(username):
@@ -37,12 +37,20 @@ def generate_list_from_lasftfm_lovedtracks(username):
         pagenumber += 1 # pages are 1 based
         print(f"scrapping page {pagenumber} of {lastpage}...")
         url = f"{main_url}?page={pagenumber}"
-        page = requests.get(url)
+
+        # Adds some header to avoid being blocked by last.fm for too many requests
+        Headers = {
+
+                # Paste your cookies here from firfox if last.fm blocks you for too many requests.
+                'cookie': ''
+            }
+
+        page = requests.get(url, headers=Headers)
         soup = BeautifulSoup(page.content, 'html.parser')
         soup = soup.find("tbody", attrs={'data-playlisting-add-entries': ""})
 
         if (soup == None):
-            print(f"{bcolors.WARNING} Couldn't find page number !")
+            print(f"{bcolors.WARNING} Couldn't find page number ! Last.fm might have blocked you for being a bot. Try to copy your cookies from Firefox and paste them in the Headers variable in this script. {bcolors.ENDC}")
             return
 
         # TODO: There are a lot of tracks that don't have a youtube link! 
@@ -62,6 +70,9 @@ def generate_list_from_lasftfm_lovedtracks(username):
 
             space = " || "
             loved_tracks.append(f"{artist_name}{space}{track_name}{space}{track_url}")
+        
+        time.sleep(1)
+
 
     print(f"{username} has a total of {len(loved_tracks)} loved tracks!")
 
