@@ -22,8 +22,7 @@ def reorganize_files(minimum_file_count: int):
         
         if os.path.isdir(folder_path):
             files = os.listdir(folder_path)
-            
-            if len(files) < minimum_file_count:
+            if len(files) < minimum_file_count and len(files) > 0:
                 file_path = os.path.join(folder_path, files[0])
                 destination_path = os.path.join(root_folder, files[0])
                 
@@ -32,7 +31,7 @@ def reorganize_files(minimum_file_count: int):
                 print(f"Folder removed: {files[0]}")
 
 minimumFileCountBeforeErase : int= 2
-if len(sys.argv) > 0:
-    minimumFileCountBeforeErase = sys.argv[1]
+if len(sys.argv) > 1:
+    minimumFileCountBeforeErase = int(sys.argv[1])
 
-reorganize_files()
+reorganize_files(minimumFileCountBeforeErase)
